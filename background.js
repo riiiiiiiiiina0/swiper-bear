@@ -56,6 +56,10 @@ function takeScreenshot(tab) {
         tabData.screenshot = resizedDataUrl;
         chrome.storage.local.set({ [`tab-${id}`]: tabData }, () => {
           console.log(`Screenshot saved for tab ${id}`);
+          console.log(
+            '%c ',
+            `font-size:300px; background:url(${resizedDataUrl}) no-repeat; background-size: contain;`,
+          );
         });
       });
     },
@@ -69,15 +73,37 @@ function takeScreenshot(tab) {
  * @param {function(string): void} callback - Callback function that receives the resized image as a data URL
  */
 function resizeImage(dataUrl, width, callback) {
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const aspectRatio = img.height / img.width;
-    canvas.width = width;
-    canvas.height = width * aspectRatio;
-    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-    callback(canvas.toDataURL('image/png'));
-  };
-  img.src = dataUrl;
+  // Use OffscreenCanvas & createImageBitmap as the background script has no DOM APIs like Image()
+  fetch(dataUrl)
+    .then((res) => res.blob())
+    .then((blob) => createImageBitmap(blob))
+    .then((imageBitmap) => {
+      const aspectRatio = imageBitmap.height / imageBitmap.width;
+      const canvasWidth = width;
+      const canvasHeight = Math.round(width * aspectRatio);
+
+      const offscreen = new OffscreenCanvas(canvasWidth, canvasHeight);
+      const ctx = offscreen.getContext('2d');
+      ctx?.drawImage(imageBitmap, 0, 0, canvasWidth, canvasHeight);
+
+      return offscreen.convertToBlob({ type: 'image/png' });
+    })
+    .then((resizedBlob) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        // Ensure the result is a string (base64 data URL) before invoking callback
+        if (typeof reader.result === 'string') {
+          callback(reader.result);
+        } else {
+          console.error(
+            'Unexpected FileReader result type',
+            typeof reader.result,
+          );
+        }
+      };
+      reader.readAsDataURL(resizedBlob);
+    })
+    .catch((err) => {
+      console.error('Failed to resize image:', err);
+    });
 }
