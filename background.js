@@ -123,3 +123,30 @@ function resizeImage(dataUrl, width, callback) {
       console.error('Failed to resize image:', err);
     });
 }
+
+/**
+ * When the extension's action button is clicked, gather the saved tab data,
+ * keep only those that belong to the current window, sort by lastActive (DESC),
+ * and output the result to the console.
+ */
+chrome.action.onClicked.addListener(() => {
+  // 1. Get all tabs in the current window
+  chrome.tabs.query({ currentWindow: true }, (tabs) => {
+    const currentTabIds = new Set(tabs.map((t) => t.id));
+
+    // 2. Retrieve everything stored in chrome.storage.local
+    chrome.storage.local.get(null, (items) => {
+      const tabDataList = Object.values(items)
+        // 2.1 Keep only objects that have an id matching a tab in the window
+        .filter((item) => item && currentTabIds.has(item.id))
+        // 3. Sort by lastActive in descending order (most recent first)
+        .sort((a, b) => b.lastActive - a.lastActive);
+
+      // 4. Log the result
+      console.log(
+        'Saved tab data for current window (sorted by lastActive DESC):',
+        tabDataList,
+      );
+    });
+  });
+});
