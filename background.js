@@ -20,12 +20,16 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+// Add retry configuration constants after the event listeners
+const MAX_SCREENSHOT_RETRIES = 3;
+const SCREENSHOT_RETRY_DELAY_MS = 200;
+
 /**
  * Takes a screenshot of the specified tab and saves it to local storage
  * @param {chrome.tabs.Tab} tab - The tab object to capture
  * The function captures the visible area, resizes it, and stores it along with tab metadata
  */
-function takeScreenshot(tab) {
+function takeScreenshot(tab, retryCount = 0) {
   const id = tab.id;
   if (!id) return;
 
@@ -49,7 +53,19 @@ function takeScreenshot(tab) {
     { format: 'jpeg', quality: 80 },
     (dataUrl) => {
       if (chrome.runtime.lastError) {
-        console.error(chrome.runtime.lastError.message);
+        const errMsg = chrome.runtime.lastError?.message || '';
+        // Retry if the tab is currently not editable (e.g., being dragged)
+        if (
+          errMsg.includes('Tabs cannot be edited right now') &&
+          retryCount < MAX_SCREENSHOT_RETRIES
+        ) {
+          setTimeout(
+            () => takeScreenshot(tab, retryCount + 1),
+            SCREENSHOT_RETRY_DELAY_MS,
+          );
+          return; // Exit early to avoid processing failure further
+        }
+        console.error(errMsg);
         return;
       }
       resizeImage(dataUrl, 300, (resizedDataUrl) => {
