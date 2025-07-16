@@ -65,14 +65,13 @@
         cursor: pointer;
         width: 180px;
       }
-      .tab-switcher-item img {
+      .tab-switcher-item .thumbnail {
         width: 100%;
         height: 110px;
         object-fit: cover;
         border-radius: 6px;
       }
       .tab-switcher-item span {
-        margin-top: 6px;
         font-size: 13px;
         color: #222;
         text-overflow: ellipsis;
@@ -80,9 +79,25 @@
         white-space: nowrap;
         max-width: 100%;
       }
-      .tab-switcher-item.selected img {
-        outline: 4px solid #1573ff;
-        outline-offset: -2px;
+      /* New: title container with favicon */
+      .tab-switcher-item .title-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        margin-top: 6px;
+      }
+      .tab-switcher-item .favicon {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        flex-shrink: 0;
+      }
+      .tab-switcher-item.selected .thumbnail {
+        outline: 6px solid #1573ff;
+        outline-offset: -3px;
       }
     `;
     document.head.appendChild(style);
@@ -127,14 +142,30 @@
       item.dataset.tabId = String(tab.id);
 
       const img = document.createElement('img');
+      img.className = 'thumbnail';
       img.src = tab.screenshot || tab.favIconUrl || '';
       img.alt = tab.title || 'Tab thumbnail';
 
+      const titleContainer = document.createElement('div');
+      titleContainer.className = 'title-container';
+
+      // Favicon (small icon next to title)
+      if (tab.favIconUrl) {
+        const faviconImg = document.createElement('img');
+        faviconImg.className = 'favicon';
+        faviconImg.src = tab.favIconUrl;
+        faviconImg.width = 16;
+        faviconImg.height = 16;
+        faviconImg.alt = 'favicon';
+        titleContainer.appendChild(faviconImg);
+      }
+
       const title = document.createElement('span');
       title.textContent = tab.title || 'Untitled tab';
+      titleContainer.appendChild(title);
 
       item.appendChild(img);
-      item.appendChild(title);
+      item.appendChild(titleContainer);
 
       item.addEventListener('click', () => {
         activateTab(idx);

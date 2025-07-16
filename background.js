@@ -55,7 +55,7 @@ function takeScreenshot(tab, retryCount = 0) {
     title: tab.title,
     favIconUrl: tab.favIconUrl,
   };
-  console.log('Take screenshot for tab', tabData);
+  // console.log('Take screenshot for tab', tabData);
 
   chrome.tabs.captureVisibleTab(
     tab.windowId,
@@ -80,11 +80,11 @@ function takeScreenshot(tab, retryCount = 0) {
       resizeImage(dataUrl, 300, (resizedDataUrl) => {
         tabData.screenshot = resizedDataUrl;
         chrome.storage.local.set({ [`tab-${id}`]: tabData }, () => {
-          console.log(`Screenshot saved for tab ${id}`);
-          console.log(
-            '%c ',
-            `font-size:300px; background:url(${resizedDataUrl}) no-repeat; background-size: contain;`,
-          );
+          // console.log(`Screenshot saved for tab ${id}`);
+          // console.log(
+          //   '%c ',
+          //   `font-size:300px; background:url(${resizedDataUrl}) no-repeat; background-size: contain;`,
+          // );
         });
       });
     },
@@ -157,20 +157,6 @@ function getTabDataList(callback) {
     });
   });
 }
-
-/**
- * When the extension's action button is clicked, gather the saved tab data,
- * keep only those that belong to the current window, sort by lastActive (DESC),
- * and output the result to the console.
- */
-chrome.action.onClicked.addListener(() => {
-  getTabDataList((tabDataList) => {
-    console.log(
-      'Saved tab data for current window (sorted by lastActive DESC):',
-      tabDataList,
-    );
-  });
-});
 
 /**
  * Injects the tab switcher content script into the given tab.
