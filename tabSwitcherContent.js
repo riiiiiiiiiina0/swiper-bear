@@ -167,12 +167,21 @@
     destroyOverlay();
   }
 
-  // Listen for messages from background to display the switcher
+  // Listen for messages from background to display / advance the switcher
   chrome.runtime.onMessage.addListener((message) => {
     if (message && message.type === 'show_tab_switcher') {
       const { tabData } = message;
-      if (Array.isArray(tabData) && tabData.length) {
+      if (!Array.isArray(tabData) || !tabData.length) return;
+
+      const wasOpen = !!overlay; // Detect if the overlay is already visible
+
+      if (!wasOpen) {
+        // Render the tab list
         renderTabs(tabData);
+      } else {
+        // If the switcher was already open, move selection to the next tab
+        selectedIndex = (selectedIndex + 1) % currentTabData.length;
+        updateSelection();
       }
     }
   });
