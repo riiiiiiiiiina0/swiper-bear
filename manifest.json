@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Screenshotter",
+  "version": "1.0",
+  "description": "Takes a screenshot of the active tab and stores it.",
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "storage",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
