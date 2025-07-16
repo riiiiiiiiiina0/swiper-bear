@@ -1,4 +1,13 @@
 /**
+ * @typedef {Object} TabData
+ * @property {number} id - The ID of the tab.
+ * @property {number} lastActive - The timestamp when the tab was last active.
+ * @property {string} [title] - The title of the tab.
+ * @property {string} [favIconUrl] - The favicon URL of the tab (optional).
+ * @property {string} [screenshot] - The screenshot of the tab (optional).
+ */
+
+/**
  * Event listener that triggers when a tab becomes active
  * Takes a screenshot of the newly activated tab once it's fully loaded
  */
@@ -42,9 +51,9 @@ function takeScreenshot(tab, retryCount = 0) {
 
   const tabData = {
     id: tab.id,
+    lastActive: new Date().getTime(),
     title: tab.title,
     favIconUrl: tab.favIconUrl,
-    lastActive: new Date().getTime(),
   };
   console.log('Take screenshot for tab', tabData);
 
@@ -125,11 +134,13 @@ function resizeImage(dataUrl, width, callback) {
 }
 
 /**
- * When the extension's action button is clicked, gather the saved tab data,
- * keep only those that belong to the current window, sort by lastActive (DESC),
- * and output the result to the console.
+ * Retrieves a list of tab data objects for all tabs in the current window,
+ * sorted by their lastActive timestamp in descending order (most recent first).
+ * Only tab data with an id matching a tab in the current window are included.
+ *
+ * @param {function(Array<TabData>): void} callback - Function to call with the resulting array of tab data objects.
  */
-chrome.action.onClicked.addListener(() => {
+function getTabDataList(callback) {
   // 1. Get all tabs in the current window
   chrome.tabs.query({ currentWindow: true }, (tabs) => {
     const currentTabIds = new Set(tabs.map((t) => t.id));
@@ -137,16 +148,110 @@ chrome.action.onClicked.addListener(() => {
     // 2. Retrieve everything stored in chrome.storage.local
     chrome.storage.local.get(null, (items) => {
       const tabDataList = Object.values(items)
-        // 2.1 Keep only objects that have an id matching a tab in the window
+        // 3 Keep only objects that have an id matching a tab in the window
         .filter((item) => item && currentTabIds.has(item.id))
-        // 3. Sort by lastActive in descending order (most recent first)
+        // 4. Sort by lastActive in descending order (most recent first)
         .sort((a, b) => b.lastActive - a.lastActive);
 
-      // 4. Log the result
-      console.log(
-        'Saved tab data for current window (sorted by lastActive DESC):',
-        tabDataList,
-      );
+      callback(tabDataList);
     });
   });
+}
+
+/**
+ * When the extension's action button is clicked, gather the saved tab data,
+ * keep only those that belong to the current window, sort by lastActive (DESC),
+ * and output the result to the console.
+ */
+chrome.action.onClicked.addListener(() => {
+  getTabDataList((tabDataList) => {
+    console.log(
+      'Saved tab data for current window (sorted by lastActive DESC):',
+      tabDataList,
+    );
+  });
+});
+
+/**
+ * Injects the tab switcher content script into the given tab.
+ * Skips chrome:// and other unsupported URLs.
+ * @param {number} tabId - ID of the tab to inject into.
+ * @param {string | undefined} url - URL of the tab (used for scheme check).
+ */
+function injectTabSwitcher(tabId, url) {
+  // Ensure we have a valid numeric tabId
+  if (typeof tabId !== 'number') return;
+
+  if (!url || (!url.startsWith('http://') && !url.startsWith('https://'))) {
+    return;
+  }
+
+  chrome.scripting.executeScript(
+    {
+      target: { tabId },
+      files: ['tabSwitcherContent.js'],
+    },
+    () => {
+      if (chrome.runtime.lastError) {
+        console.warn(
+          'Failed to inject TabSwitcher:',
+          chrome.runtime.lastError.message,
+        );
+      }
+    },
+  );
+}
+
+// Install/update: inject content script into all existing eligible tabs.
+chrome.runtime.onInstalled.addListener((details) => {
+  if (details.reason === 'install' || details.reason === 'update') {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach((tab) => {
+        if (typeof tab.id === 'number') {
+          injectTabSwitcher(tab.id, tab.url);
+        }
+      });
+    });
+  }
+});
+
+// Handle keyboard shortcut defined in manifest to toggle the tab switcher overlay.
+chrome.commands.onCommand.addListener((command) => {
+  if (command !== 'toggle_tab_switcher') return;
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs.length) return;
+    const activeTab = tabs[0];
+
+    // Ensure content script is present before sending data.
+    if (typeof activeTab.id === 'number') {
+      injectTabSwitcher(activeTab.id, activeTab.url);
+    }
+
+    // Gather tab data (screenshots, metadata) and send to the content script.
+    getTabDataList((tabDataList) => {
+      if (typeof activeTab.id === 'number') {
+        // Always sort the active tab to the first item in tabDataList
+        const sortedTabDataList = [
+          ...tabDataList.filter((tab) => tab.id === activeTab.id),
+          ...tabDataList.filter((tab) => tab.id !== activeTab.id),
+        ];
+        chrome.tabs.sendMessage(activeTab.id, {
+          type: 'show_tab_switcher',
+          tabData: sortedTabDataList.slice(0, 5),
+        });
+      }
+    });
+  });
+});
+
+// Listen for requests from the content script to activate a given tab.
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (
+    message &&
+    message.type === 'activate_tab' &&
+    typeof message.id === 'number'
+  ) {
+    chrome.tabs.update(message.id, { active: true });
+  }
 });

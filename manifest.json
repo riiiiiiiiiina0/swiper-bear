@@ -15,12 +15,21 @@
   "permissions": [
     "activeTab",
     "tabs",
-    "storage"
+    "storage",
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
   ],
   "background": {
     "service_worker": "background.js"
+  },
+  "commands": {
+    "toggle_tab_switcher": {
+      "suggested_key": {
+        "default": "Alt+Shift+Q"
+      },
+      "description": "Toggle Tab Switcher"
+    }
   }
 }
