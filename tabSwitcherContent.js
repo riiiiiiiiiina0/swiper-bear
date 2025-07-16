@@ -21,6 +21,22 @@
   const KEY_CODES_NEXT = ['ArrowRight', 'ArrowDown'];
   const KEY_CODES_PREV = ['ArrowLeft', 'ArrowUp'];
 
+  // Track currently pressed keys so we know when all keys have been released
+  /** @type {Set<string>} */
+  const pressedKeys = new Set();
+
+  window.addEventListener('keydown', (e) => {
+    pressedKeys.add(e.key);
+  });
+  window.addEventListener('keyup', (e) => {
+    pressedKeys.delete(e.key);
+
+    // If no keys are currently pressed and the overlay is visible, activate the tab
+    if (overlay && pressedKeys.size === 0) {
+      activateTab(selectedIndex);
+    }
+  });
+
   // Inject base styles for the overlay
   function injectStyles() {
     if (document.getElementById('tab-switcher-styles')) return;
