@@ -54,6 +54,7 @@
         background: rgba(255, 255, 255, 0.95);
         padding: 16px 20px;
         border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
         backdrop-filter: blur(10px);
         transition: opacity 150ms ease;
@@ -99,6 +100,17 @@
       .tab-switcher-item.selected .thumbnail {
         outline: 6px solid #1573ff;
         outline-offset: -3px;
+      }
+      /* Dark mode overrides */
+      @media (prefers-color-scheme: dark) {
+        #tab-switcher-overlay {
+          background: rgba(40, 40, 40, 0.95);
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.75);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .tab-switcher-item span {
+          color: #eee;
+        }
       }
     `;
     document.head.appendChild(style);
