@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Tab Screenshotter",
+  "name": "Tab Switcher",
   "version": "1.0",
-  "description": "Takes a screenshot of the active tab and stores it.",
+  "description": "Switch between tabs with a shortcut.",
   "permissions": [
     "activeTab",
     "tabs",
