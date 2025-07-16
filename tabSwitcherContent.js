@@ -7,10 +7,47 @@
  */
 
 (() => {
-  // @ts-ignore - Declare global flag dynamically on window
-  if (window.__TAB_SWITCHER_INIT__) return; // Prevent double-injection
+  /*
+   * Re-initialisation strategy
+   * -------------------------
+   * We want the content script to execute *again* when the extension is updated so
+   * that users instantly benefit from the latest code without having to reload
+   * every tab. Instead of a simple boolean flag that blocks any subsequent
+   * injections, we now store the *extension version* on the `window` object. If
+   * the stored version differs from the currently running version we allow the
+   * script to run again (and optionally perform a light clean-up of artefacts
+   * from the older instance).
+   */
+
+  // Determine the version shipped with this script. Fallback to empty string if
+  // something goes wrong.
+  const currentVersion = (chrome?.runtime?.getManifest?.() || {}).version || '';
+
+  // @ts-ignore - previous version marker (if any) is stored on window
+  const previousVersion = window.__TAB_SWITCHER_VERSION__;
+
+  // If we have already executed *this exact* version on the page we can bail
+  // out early.
+  if (previousVersion === currentVersion) return;
+
+  // If there was a previous version running we try a minimal clean-up to avoid
+  // duplicated UI. The older script might not expose a clean-up hook (it was
+  // introduced in this commit) so we guard everything with feature checks.
+  // @ts-ignore – cleanup hook is defined below in this version
+  if (typeof window.__TAB_SWITCHER_CLEANUP__ === 'function') {
+    try {
+      // @ts-ignore
+      window.__TAB_SWITCHER_CLEANUP__();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('[Tab-Switcher] Previous instance cleanup failed:', err);
+    }
+  }
+
+  // Store the version marker so further injections of the same build are
+  // ignored.
   // @ts-ignore
-  window.__TAB_SWITCHER_INIT__ = true;
+  window.__TAB_SWITCHER_VERSION__ = currentVersion;
 
   /** @type {HTMLDivElement | null} */
   let overlay = null;
@@ -245,4 +282,21 @@
       }
     }
   });
+
+  /*
+   * ------------------------------------------------------
+   * Expose a clean-up callback so future script injections
+   * (e.g. after an extension update) can gracefully remove
+   * artefacts from the current instance before initialising
+   * the new one.
+   * ------------------------------------------------------
+   */
+  // @ts-ignore – we deliberately attach to the window object
+  window.__TAB_SWITCHER_CLEANUP__ = () => {
+    try {
+      destroyOverlay();
+    } catch (_) {
+      /** noop */
+    }
+  };
 })();
