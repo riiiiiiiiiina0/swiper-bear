@@ -143,14 +143,34 @@ function resizeImage(dataUrl, width, callback) {
 function getTabDataList(callback) {
   // 1. Get all tabs in the current window
   chrome.tabs.query({ currentWindow: true }, (tabs) => {
-    const currentTabIds = new Set(tabs.map((t) => t.id));
+    // Build a quick lookup so we can patch stored data with the latest info.
+    /** @type {Map<number, chrome.tabs.Tab>} */
+    const liveTabMap = new Map(
+      tabs
+        .filter((t) => typeof t.id === 'number')
+        .map((t) => [/** @type {number} */ (t.id), t]),
+    );
+
+    const currentTabIds = new Set(liveTabMap.keys());
 
     // 2. Retrieve everything stored in chrome.storage.local
     chrome.storage.local.get(null, (items) => {
       const tabDataList = Object.values(items)
-        // 3 Keep only objects that have an id matching a tab in the window
+        // 3. Keep only objects that have an id matching a tab in the window
         .filter((item) => item && currentTabIds.has(item.id))
-        // 4. Sort by lastActive in descending order (most recent first)
+        // 4. Merge in the latest title & favicon from the live tab info so we
+        //    always show up-to-date data in the switcher.
+        .map((item) => {
+          const live = liveTabMap.get(item.id);
+          return live
+            ? {
+                ...item,
+                title: live.title,
+                favIconUrl: live.favIconUrl,
+              }
+            : item;
+        })
+        // 5. Sort by lastActive in descending order (most recent first)
         .sort((a, b) => b.lastActive - a.lastActive);
 
       callback(tabDataList);
