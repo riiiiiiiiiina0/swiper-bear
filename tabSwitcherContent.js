@@ -74,6 +74,7 @@
       .tab-switcher-item span {
         font-size: 13px;
         color: #222;
+        font-family: "Arial Rounded MT", "Arial Rounded MT Bold", Arial, sans-serif;
         text-overflow: ellipsis;
         overflow: hidden;
         white-space: nowrap;
