@@ -3,6 +3,8 @@
   const existingOverlay = document.getElementById('tab-switcher-overlay');
   if (existingOverlay) return;
 
+  console.log('tabSwitcherContent.js loaded');
+
   /** @type {HTMLDivElement | null} */
   let overlay = null;
 
@@ -11,36 +13,30 @@
   let selectedIndex = 0;
 
   // Track currently pressed keys so we know when all keys have been released
-  let numberOfKeysPressed = 0;
+  let triggerHotkey = new Set();
 
   const onKeyDown = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
     if (e.key === 'ArrowRight') {
       selectNextTab();
     } else if (e.key === 'ArrowLeft') {
       selectPreviousTab();
     } else if (e.key === 'Enter') {
       activateTab(selectedIndex);
-    }
-
-    if (e.key === 'Escape') {
+    } else if (e.key === 'Escape') {
       destroyOverlay();
-    } else {
-      numberOfKeysPressed++;
     }
   };
 
   const onKeyUp = (e) => {
-    numberOfKeysPressed--;
-    if (overlay && numberOfKeysPressed === 0) {
+    triggerHotkey.delete(e.key.toLowerCase());
+    console.log('onKeyUp', e.key.toLowerCase(), triggerHotkey.values());
+    if (overlay && triggerHotkey.size === 0) {
       activateTab(selectedIndex);
     }
   };
 
-  window.addEventListener('keydown', onKeyDown);
-  window.addEventListener('keyup', onKeyUp);
+  window.addEventListener('keydown', onKeyDown, { capture: true });
+  window.addEventListener('keyup', onKeyUp, { capture: true });
 
   // Request the latest tab data from the background script as soon as the
   // content script is executed.
@@ -51,7 +47,25 @@
         renderTabs(tabData);
       }
       if (shortcut) {
-        numberOfKeysPressed = shortcut.length - 1;
+        const shortcutKeys = shortcut.includes('+')
+          ? shortcut.split('+')
+          : shortcut.split('');
+        const keys = shortcutKeys.map((key) => {
+          switch (key) {
+            // handle mac modifier key symbols
+            case '⌘':
+              return 'meta';
+            case '⌥':
+              return 'alt';
+            case '⇧':
+              return 'shift';
+            case '⌃':
+              return 'control';
+            default:
+              return key.toLowerCase();
+          }
+        });
+        triggerHotkey = new Set(keys);
       }
     }
   });
@@ -148,6 +162,10 @@
 
   function destroyOverlay() {
     if (overlay) {
+      window.removeEventListener('keydown', onKeyDown, { capture: true });
+      window.removeEventListener('keyup', onKeyUp, { capture: true });
+      chrome.runtime.onMessage.removeListener(onMessage);
+
       overlay.remove();
       overlay = null;
     }
@@ -235,15 +253,12 @@
   chrome.runtime.onMessage.addListener(onMessage);
 
   function activateTab(index) {
-    const tab = currentTabData[index];
-    if (!tab) return;
-
     // cleanup
     destroyOverlay();
-    window.removeEventListener('keydown', onKeyDown);
-    window.removeEventListener('keyup', onKeyUp);
-    chrome.runtime.onMessage.removeListener(onMessage);
 
-    chrome.runtime.sendMessage({ type: 'activate_tab', id: tab.id });
+    const tab = currentTabData[index];
+    if (tab) {
+      chrome.runtime.sendMessage({ type: 'activate_tab', id: tab.id });
+    }
   }
 })();
