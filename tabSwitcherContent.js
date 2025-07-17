@@ -3,8 +3,6 @@
   const existingOverlay = document.getElementById('tab-switcher-overlay');
   if (existingOverlay) return;
 
-  console.log('tabSwitcherContent.js loaded');
-
   /** @type {HTMLDivElement | null} */
   let overlay = null;
 
@@ -29,7 +27,6 @@
 
   const onKeyUp = (e) => {
     triggerHotkey.delete(e.key.toLowerCase());
-    console.log('onKeyUp', e.key.toLowerCase(), triggerHotkey.values());
     if (overlay && triggerHotkey.size === 0) {
       activateTab(selectedIndex);
     }
@@ -47,9 +44,10 @@
         renderTabs(tabData);
       }
       if (shortcut) {
-        const shortcutKeys = shortcut.includes('+')
-          ? shortcut.split('+')
-          : shortcut.split('');
+        const isWindows = navigator.userAgent.includes('Windows');
+        const shortcutKeys = isWindows
+          ? shortcut.split('+') // Windows uses + to separate keys
+          : shortcut.split('').slice(0, -1); // on Mac, the last key in the shortcut is not captured by the keyup event, so we remove it
         const keys = shortcutKeys.map((key) => {
           switch (key) {
             // handle mac modifier key symbols
