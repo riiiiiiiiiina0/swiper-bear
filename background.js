@@ -208,19 +208,6 @@ function injectTabSwitcher(tabId, url) {
   );
 }
 
-// Install/update: inject content script into all existing eligible tabs.
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install' || details.reason === 'update') {
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        if (typeof tab.id === 'number') {
-          injectTabSwitcher(tab.id, tab.url);
-        }
-      });
-    });
-  }
-});
-
 // Handle keyboard shortcut defined in manifest to toggle the tab switcher overlay.
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'toggle_tab_switcher') return;

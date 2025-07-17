@@ -276,9 +276,8 @@
         // Render the tab list
         renderTabs(tabData);
       } else {
-        // If the switcher was already open, move selection to the next tab
-        selectedIndex = (selectedIndex + 1) % currentTabData.length;
-        updateSelection();
+        // If the switcher was already open, destroy it
+        destroyOverlay();
       }
     }
   });
