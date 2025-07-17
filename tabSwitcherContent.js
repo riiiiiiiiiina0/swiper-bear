@@ -1,76 +1,58 @@
-/* eslint-disable */
-/**
- * @ts-nocheck
- * Tab Switcher Content Script
- * Listens for messages from the background script and renders an overlay
- * with thumbnails of the user's open tabs (supplied by background).
- */
-
 (() => {
-  /*
-   * Re-initialisation strategy
-   * -------------------------
-   * We want the content script to execute *again* when the extension is updated so
-   * that users instantly benefit from the latest code without having to reload
-   * every tab. Instead of a simple boolean flag that blocks any subsequent
-   * injections, we now store the *extension version* on the `window` object. If
-   * the stored version differs from the currently running version we allow the
-   * script to run again (and optionally perform a light clean-up of artefacts
-   * from the older instance).
-   */
-
-  // Determine the version shipped with this script. Fallback to empty string if
-  // something goes wrong.
-  const currentVersion = (chrome?.runtime?.getManifest?.() || {}).version || '';
-
-  // @ts-ignore - previous version marker (if any) is stored on window
-  const previousVersion = window.__TAB_SWITCHER_VERSION__;
-
-  // If we have already executed *this exact* version on the page we can bail
-  // out early.
-  if (previousVersion === currentVersion) return;
-
-  // If there was a previous version running we try a minimal clean-up to avoid
-  // duplicated UI. The older script might not expose a clean-up hook (it was
-  // introduced in this commit) so we guard everything with feature checks.
-  // @ts-ignore – cleanup hook is defined below in this version
-  if (typeof window.__TAB_SWITCHER_CLEANUP__ === 'function') {
-    try {
-      // @ts-ignore
-      window.__TAB_SWITCHER_CLEANUP__();
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.warn('[Tab-Switcher] Previous instance cleanup failed:', err);
-    }
-  }
-
-  // Store the version marker so further injections of the same build are
-  // ignored.
-  // @ts-ignore
-  window.__TAB_SWITCHER_VERSION__ = currentVersion;
+  // stop if the overlay already exists
+  const existingOverlay = document.getElementById('tab-switcher-overlay');
+  if (existingOverlay) return;
 
   /** @type {HTMLDivElement | null} */
   let overlay = null;
+
   /** @type {Array<any>} */
   let currentTabData = [];
   let selectedIndex = 0;
 
-  const KEY_CODES_NEXT = ['ArrowRight', 'ArrowDown'];
-  const KEY_CODES_PREV = ['ArrowLeft', 'ArrowUp'];
-
   // Track currently pressed keys so we know when all keys have been released
-  /** @type {Set<string>} */
-  const pressedKeys = new Set();
+  let numberOfKeysPressed = 0;
 
-  window.addEventListener('keydown', (e) => {
-    pressedKeys.add(e.key);
-  });
-  window.addEventListener('keyup', (e) => {
-    pressedKeys.delete(e.key);
+  const onKeyDown = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-    // If no keys are currently pressed and the overlay is visible, activate the tab
-    if (overlay && pressedKeys.size === 0) {
+    if (e.key === 'ArrowRight') {
+      selectNextTab();
+    } else if (e.key === 'ArrowLeft') {
+      selectPreviousTab();
+    } else if (e.key === 'Enter') {
       activateTab(selectedIndex);
+    }
+
+    if (e.key === 'Escape') {
+      destroyOverlay();
+    } else {
+      numberOfKeysPressed++;
+    }
+  };
+
+  const onKeyUp = (e) => {
+    numberOfKeysPressed--;
+    if (overlay && numberOfKeysPressed === 0) {
+      activateTab(selectedIndex);
+    }
+  };
+
+  window.addEventListener('keydown', onKeyDown);
+  window.addEventListener('keyup', onKeyUp);
+
+  // Request the latest tab data from the background script as soon as the
+  // content script is executed.
+  chrome.runtime.sendMessage({ type: 'request_tab_data' }, (response) => {
+    if (response && response.type === 'tab_data') {
+      const { tabData, shortcut } = response;
+      if (Array.isArray(tabData) && tabData.length) {
+        renderTabs(tabData);
+      }
+      if (shortcut) {
+        numberOfKeysPressed = shortcut.length - 1;
+      }
     }
   });
 
@@ -99,6 +81,7 @@
       .tab-switcher-item {
         display: flex;
         flex-direction: column;
+        gap: 8px;
         align-items: center;
         cursor: pointer;
         width: 180px;
@@ -126,7 +109,6 @@
         justify-content: center;
         gap: 8px;
         width: 100%;
-        margin-top: 6px;
       }
       .tab-switcher-item .favicon {
         width: 16px;
@@ -162,7 +144,6 @@
       e.stopPropagation();
     });
     document.body.appendChild(overlay);
-    document.addEventListener('keydown', handleKeyDown, true);
   }
 
   function destroyOverlay() {
@@ -170,7 +151,6 @@
       overlay.remove();
       overlay = null;
     }
-    document.removeEventListener('keydown', handleKeyDown, true);
   }
 
   function renderTabs(tabs) {
@@ -217,10 +197,6 @@
       item.appendChild(img);
       item.appendChild(titleContainer);
 
-      item.addEventListener('click', () => {
-        activateTab(idx);
-      });
-
       overlay?.appendChild(item);
     });
   }
@@ -236,67 +212,38 @@
     if (current) current.classList.add('selected');
   }
 
-  function handleKeyDown(e) {
+  function selectNextTab() {
     if (!overlay) return;
+    selectedIndex = (selectedIndex + 1) % currentTabData.length;
+    updateSelection();
+  }
 
-    if (KEY_CODES_NEXT.includes(e.key)) {
-      selectedIndex = (selectedIndex + 1) % currentTabData.length;
-      updateSelection();
-      e.preventDefault();
-    } else if (KEY_CODES_PREV.includes(e.key)) {
-      selectedIndex =
-        (selectedIndex - 1 + currentTabData.length) % currentTabData.length;
-      updateSelection();
-      e.preventDefault();
-    } else if (e.key === 'Enter') {
-      activateTab(selectedIndex);
-      e.preventDefault();
-    } else if (e.key === 'Escape') {
-      destroyOverlay();
-      e.preventDefault();
+  function selectPreviousTab() {
+    if (!overlay) return;
+    selectedIndex =
+      (selectedIndex - 1 + currentTabData.length) % currentTabData.length;
+    updateSelection();
+  }
+
+  function onMessage(message) {
+    if (!message) return;
+    if (message.type === 'advance_selection') {
+      selectNextTab();
     }
   }
+
+  chrome.runtime.onMessage.addListener(onMessage);
 
   function activateTab(index) {
     const tab = currentTabData[index];
     if (!tab) return;
-    chrome.runtime.sendMessage({ type: 'activate_tab', id: tab.id });
+
+    // cleanup
     destroyOverlay();
+    window.removeEventListener('keydown', onKeyDown);
+    window.removeEventListener('keyup', onKeyUp);
+    chrome.runtime.onMessage.removeListener(onMessage);
+
+    chrome.runtime.sendMessage({ type: 'activate_tab', id: tab.id });
   }
-
-  // Listen for messages from background to display / advance the switcher
-  chrome.runtime.onMessage.addListener((message) => {
-    if (message && message.type === 'show_tab_switcher') {
-      const { tabData } = message;
-      if (!Array.isArray(tabData) || !tabData.length) return;
-
-      const wasOpen = !!overlay; // Detect if the overlay is already visible
-
-      if (!wasOpen) {
-        // Render the tab list
-        renderTabs(tabData);
-      } else {
-        // If the switcher was already open, move selection to the next tab
-        selectedIndex = (selectedIndex + 1) % currentTabData.length;
-        updateSelection();
-      }
-    }
-  });
-
-  /*
-   * ------------------------------------------------------
-   * Expose a clean-up callback so future script injections
-   * (e.g. after an extension update) can gracefully remove
-   * artefacts from the current instance before initialising
-   * the new one.
-   * ------------------------------------------------------
-   */
-  // @ts-ignore – we deliberately attach to the window object
-  window.__TAB_SWITCHER_CLEANUP__ = () => {
-    try {
-      destroyOverlay();
-    } catch (_) {
-      /** noop */
-    }
-  };
 })();

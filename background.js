@@ -208,19 +208,6 @@ function injectTabSwitcher(tabId, url) {
   );
 }
 
-// Install/update: inject content script into all existing eligible tabs.
-chrome.runtime.onInstalled.addListener((details) => {
-  if (details.reason === 'install' || details.reason === 'update') {
-    chrome.tabs.query({}, (tabs) => {
-      tabs.forEach((tab) => {
-        if (typeof tab.id === 'number') {
-          injectTabSwitcher(tab.id, tab.url);
-        }
-      });
-    });
-  }
-});
-
 // Handle keyboard shortcut defined in manifest to toggle the tab switcher overlay.
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'toggle_tab_switcher') return;
@@ -229,35 +216,54 @@ chrome.commands.onCommand.addListener((command) => {
     if (!tabs.length) return;
     const activeTab = tabs[0];
 
-    // Ensure content script is present before sending data.
-    if (typeof activeTab.id === 'number') {
-      injectTabSwitcher(activeTab.id, activeTab.url);
-    }
+    if (typeof activeTab.id !== 'number') return;
 
-    // Gather tab data (screenshots, metadata) and send to the content script.
-    getTabDataList((tabDataList) => {
-      if (typeof activeTab.id === 'number') {
-        // Always sort the active tab to the first item in tabDataList
-        const sortedTabDataList = [
-          ...tabDataList.filter((tab) => tab.id === activeTab.id),
-          ...tabDataList.filter((tab) => tab.id !== activeTab.id),
-        ];
-        chrome.tabs.sendMessage(activeTab.id, {
-          type: 'show_tab_switcher',
-          tabData: sortedTabDataList.slice(0, 5),
-        });
-      }
-    });
+    // Inject (or reinject) the content script and, if the overlay is already
+    // open, move selection to the next tab.
+    injectTabSwitcher(activeTab.id, activeTab.url);
+    chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
   });
 });
 
-// Listen for requests from the content script to activate a given tab.
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Activate a specific tab
   if (
     message &&
     message.type === 'activate_tab' &&
     typeof message.id === 'number'
   ) {
     chrome.tabs.update(message.id, { active: true });
+  }
+
+  // Content script requests recent tab data – gather and reply asynchronously
+  else if (message && message.type === 'request_tab_data') {
+    // Get the recent tab data
+    getTabDataList((tabDataList) => {
+      const activeTabId = sender?.tab?.id;
+      const sorted =
+        typeof activeTabId === 'number'
+          ? [
+              ...tabDataList.filter((t) => t.id === activeTabId),
+              ...tabDataList.filter((t) => t.id !== activeTabId),
+            ]
+          : tabDataList;
+
+      // Get the actual shortcut keys for the command and include in the response
+      chrome.commands.getAll((commands) => {
+        const toggleCmd = commands.find(
+          (cmd) => cmd.name === 'toggle_tab_switcher',
+        );
+        const shortcut =
+          toggleCmd && toggleCmd.shortcut ? toggleCmd.shortcut : undefined;
+        console.log('shortcut', shortcut);
+
+        sendResponse({
+          type: 'tab_data',
+          tabData: sorted.slice(0, 5),
+          shortcut: shortcut,
+        });
+      });
+    });
+    return true; // Keep the message channel open for async sendResponse
   }
 });
