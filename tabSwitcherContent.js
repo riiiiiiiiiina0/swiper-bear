@@ -35,6 +35,16 @@
   window.addEventListener('keydown', onKeyDown, { capture: true });
   window.addEventListener('keyup', onKeyUp, { capture: true });
 
+  // Dismiss overlay when the tab/page becomes hidden (e.g., user switches tabs or minimizes window)
+  const onVisibilityChange = () => {
+    if (document.visibilityState === 'hidden') {
+      destroyOverlay();
+    }
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange, {
+    capture: true,
+  });
+
   // Request the latest tab data from the background script as soon as the
   // content script is executed.
   chrome.runtime.sendMessage({ type: 'request_tab_data' }, (response) => {
@@ -163,6 +173,10 @@
       window.removeEventListener('keydown', onKeyDown, { capture: true });
       window.removeEventListener('keyup', onKeyUp, { capture: true });
       chrome.runtime.onMessage.removeListener(onMessage);
+      // Remove visibilitychange listener
+      document.removeEventListener('visibilitychange', onVisibilityChange, {
+        capture: true,
+      });
 
       overlay.remove();
       overlay = null;
