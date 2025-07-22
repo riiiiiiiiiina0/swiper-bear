@@ -184,10 +184,11 @@
   }
 
   function renderTabs(tabs) {
-    currentTabData = tabs;
+    const n = Math.floor(window.innerWidth / 200);
+    currentTabData = tabs.slice(0, n);
 
     // Start with the last tab selected
-    selectedIndex = tabs.length > 1 ? 1 : 0;
+    selectedIndex = currentTabData.length > 1 ? 1 : 0;
 
     if (!overlay) createOverlay();
 
@@ -195,7 +196,7 @@
     if (!overlay) return; // safety
     overlay.innerHTML = '';
 
-    tabs.forEach((tab, idx) => {
+    currentTabData.forEach((tab, idx) => {
       const item = document.createElement('div');
       item.className =
         'tab-switcher-item' + (idx === selectedIndex ? ' selected' : '');

@@ -61,7 +61,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         sendResponse({
           type: 'tab_data',
-          tabData: tabDataList.slice(0, 5),
+          tabData: tabDataList.slice(0, 8), // provide 8 tabs at most
           shortcut: shortcut,
         });
       });
