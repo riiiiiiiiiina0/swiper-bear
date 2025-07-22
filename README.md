@@ -6,12 +6,12 @@ A minimal Chrome extension that lets you flip through your most-recently used ta
 
 ## ✨ Features
 
-• ⚡ **Quick keyboard access** – Press **Alt + Q** (configurable in `chrome://extensions/shortcuts`) to bring up the switcher.
-• 🖼️ **Visual thumbnails** – Each entry shows a live screenshot, page title and favicon so you can recognise the tab at a glance.
-• 🕑 **MRU order** – Tabs are sorted by “last active” so the one you were on a moment ago is always first.
-• 🎹 **Arrow-key navigation** – While holding the shortcut you can cycle with **← / → / ↑ / ↓** or press **Enter** to confirm.
-• 👆 **One-hand cycling** – Press **Alt + Q** again while the overlay is open to advance to the next tab.
-• 🪶 **Lightweight** – Pure JavaScript, no frameworks, no bundler.
+- ⚡ **Quick keyboard access** – Press **Alt + Q** (configurable in `chrome://extensions/shortcuts`) to bring up the switcher.
+- 🖼️ **Visual thumbnails** – Each entry shows a live screenshot, page title and favicon so you can recognise the tab at a glance.
+- 🕑 **MRU order** – Tabs are sorted by “last active” so the one you were on a moment ago is always first.
+- 🎹 **Arrow-key navigation** – While holding the shortcut you can cycle with **← / → / ↑ / ↓** or press **Enter** to confirm.
+- 👆 **One-hand cycling** – Press **Alt + Q** again while the overlay is open to advance to the next tab.
+- 🪶 **Lightweight** – Pure JavaScript, no frameworks, no bundler.
 
 ## How it works
 
