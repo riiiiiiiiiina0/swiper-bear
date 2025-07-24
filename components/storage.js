@@ -45,20 +45,23 @@ export function getTabDataList(activeTabId, callback) {
 
     // 2. Retrieve everything stored in chrome.storage.local
     chrome.storage.local.get(null, (items) => {
-      const tabDataList = Object.values(items)
-        // 3. Keep only objects that have an id matching a tab in the window
-        .filter((item) => item && currentTabIds.has(item.id))
-        // 4. Merge in the latest title & favicon from the live tab info so we
-        //    always show up-to-date data in the switcher.
-        .map((item) => {
-          const live = liveTabMap.get(item.id);
-          return live
-            ? {
-                ...item,
-                title: live.title,
-                favIconUrl: live.favIconUrl,
-              }
-            : item;
+      const storedTabs = new Map(
+        Object.values(items)
+          .filter((item) => item && currentTabIds.has(item.id))
+          .map((item) => [item.id, item]),
+      );
+
+      const tabDataList = tabs
+        .map((tab) => {
+          const stored = storedTabs.get(tab.id);
+          return {
+            id: tab.id,
+            lastActive: stored ? stored.lastActive : 0,
+            title: tab.title,
+            url: tab.url,
+            favIconUrl: tab.favIconUrl,
+            screenshot: stored ? stored.screenshot : undefined,
+          };
         })
         // 5. Sort by lastActive in descending order (most recent first)
         .sort((a, b) => {
@@ -66,7 +69,6 @@ export function getTabDataList(activeTabId, callback) {
           if (b.id === activeTabId) return 1;
           return b.lastActive - a.lastActive;
         });
-
       callback(tabDataList);
     });
   });
