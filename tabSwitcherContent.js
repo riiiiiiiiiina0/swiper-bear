@@ -27,6 +27,7 @@
 
   const onKeyUp = (e) => {
     triggerHotkey.delete(e.key.toLowerCase());
+    console.log('key up', e.key, triggerHotkey.entries());
     if (overlay && triggerHotkey.size === 0) {
       activateTab(selectedIndex);
     }
@@ -163,17 +164,35 @@
     injectStyles();
     overlay = document.createElement('div');
     overlay.id = 'tab-switcher-overlay';
+
+    // Make the overlay focusable and ensure it captures keyboard events
+    overlay.tabIndex = -1;
+    overlay.style.outline = 'none'; // Remove default focus outline
+
     overlay.addEventListener('click', (e) => {
       // Stop click from propagating to the page beneath
       e.stopPropagation();
     });
+
+    // Add keyboard event listeners directly to the overlay for better capture
+    overlay.addEventListener('keydown', onKeyDown, { capture: true });
+    overlay.addEventListener('keyup', onKeyUp, { capture: true });
+
     document.body.appendChild(overlay);
+
+    // Focus the overlay to ensure it receives keyboard events
+    overlay.focus();
   }
 
   function destroyOverlay() {
     if (overlay) {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
       window.removeEventListener('keyup', onKeyUp, { capture: true });
+
+      // Remove event listeners from the overlay element
+      overlay.removeEventListener('keydown', onKeyDown, { capture: true });
+      overlay.removeEventListener('keyup', onKeyUp, { capture: true });
+
       chrome.runtime.onMessage.removeListener(onMessage);
       // Remove visibilitychange listener
       document.removeEventListener('visibilitychange', onVisibilityChange, {
