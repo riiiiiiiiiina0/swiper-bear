@@ -27,7 +27,6 @@
 
   const onKeyUp = (e) => {
     triggerHotkey.delete(e.key.toLowerCase());
-    console.log('key up', e.key, triggerHotkey.entries());
     if (overlay && triggerHotkey.size === 0) {
       activateTab(selectedIndex);
     }
@@ -59,8 +58,9 @@
         const shortcutKeys = isWindows
           ? shortcut.split('+') // Windows uses + to separate keys
           : shortcut.split('').slice(0, -1); // on Mac, the last key in the shortcut is not captured by the keyup event, so we remove it
+
         const keys = shortcutKeys.map((key) => {
-          switch (key) {
+          switch (key.toLowerCase()) {
             // handle mac modifier key symbols
             case '⌘':
               return 'meta';
@@ -69,6 +69,7 @@
             case '⇧':
               return 'shift';
             case '⌃':
+            case 'ctrl':
               return 'control';
             default:
               return key.toLowerCase();
