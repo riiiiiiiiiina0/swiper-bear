@@ -28,7 +28,7 @@
   "commands": {
     "toggle_tab_switcher": {
       "suggested_key": {
-        "default": "Alt+Q"
+        "default": "Ctrl+Q"
       },
       "description": "Toggle Tab Switcher"
     }
