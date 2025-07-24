@@ -90,7 +90,9 @@
         left: 50%;
         transform: translate(-50%, -50%);
         z-index: 2147483647; /* Max z-index */
-        display: flex;
+        display: flex !important;
+        flex-direction: row !important;
+        height: auto !important;
         gap: 12px;
         background: rgba(255, 255, 255, 0.95);
         padding: 16px 20px;
@@ -177,7 +179,6 @@
       document.removeEventListener('visibilitychange', onVisibilityChange, {
         capture: true,
       });
-
       overlay.remove();
       overlay = null;
     }
