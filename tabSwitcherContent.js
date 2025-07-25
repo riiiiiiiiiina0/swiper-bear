@@ -87,22 +87,27 @@
     style.id = 'tab-switcher-styles';
     style.textContent = `
       #tab-switcher-overlay {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 2147483647; /* Max z-index */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 100% !important;
+        height: 100% !important;
         display: flex !important;
+        align-items: center !important;
+        z-index: 2147483647 !important; /* Max z-index */
         flex-direction: row !important;
         height: auto !important;
-        gap: 12px;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 16px 20px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(10px);
-        transition: opacity 150ms ease;
+        max-width: 90vw !important;
+        overflow-x: auto !important;
+        gap: 12px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        padding: 16px 20px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(10px) !important;
+        transition: opacity 150ms ease !important;
       }
       .tab-switcher-item {
         display: flex;
@@ -111,6 +116,7 @@
         align-items: center;
         cursor: pointer;
         width: 180px;
+        min-width: 180px;
       }
       .tab-switcher-item .thumbnail {
         width: 100%;
@@ -205,8 +211,7 @@
   }
 
   function renderTabs(tabs) {
-    const n = Math.floor(window.innerWidth / 200);
-    currentTabData = tabs.slice(0, n);
+    currentTabData = tabs;
 
     // Start with the last tab selected
     selectedIndex = currentTabData.length > 1 ? 1 : 0;
@@ -268,7 +273,14 @@
     if (!items.length) return;
     items.forEach((el) => el.classList.remove('selected'));
     const current = items[selectedIndex];
-    if (current) current.classList.add('selected');
+    if (current) {
+      current.classList.add('selected');
+      current.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'center',
+      });
+    }
   }
 
   function selectNextTab() {
