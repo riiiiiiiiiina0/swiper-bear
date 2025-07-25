@@ -9,6 +9,7 @@
   /** @type {Array<any>} */
   let currentTabData = [];
   let selectedIndex = 0;
+  let searchQuery = '';
 
   // Track currently pressed keys so we know when all keys have been released
   let triggerHotkey = new Set();
@@ -22,6 +23,14 @@
       activateTab(selectedIndex);
     } else if (e.key === 'Escape') {
       destroyOverlay();
+    } else if (e.key === 'Backspace') {
+      searchQuery = searchQuery.slice(0, -1);
+      renderOrUpdateTabs(currentTabData);
+      updateSearchToast();
+    } else if (e.key.length === 1) {
+      searchQuery += e.key.toLowerCase();
+      renderOrUpdateTabs(currentTabData);
+      updateSearchToast();
     }
   };
 
@@ -51,7 +60,8 @@
     if (response && response.type === 'tab_data') {
       const { tabData, shortcut } = response;
       if (Array.isArray(tabData) && tabData.length) {
-        renderTabs(tabData);
+        currentTabData = tabData;
+        renderOrUpdateTabs(tabData);
       }
       if (shortcut) {
         const isWindows = navigator.userAgent.includes('Windows');
@@ -191,7 +201,43 @@
     overlay.focus();
   }
 
+  function updateSearchToast() {
+    let toast = document.getElementById('tab-switcher-search-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'tab-switcher-search-toast';
+      toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 16px;
+        font-family: sans-serif;
+        font-size: 14px;
+        z-index: 2147483647;
+        pointer-events: none;
+        transition: opacity 0.2s;
+      `;
+      document.body.appendChild(toast);
+    }
+
+    if (searchQuery) {
+      toast.textContent = searchQuery;
+      toast.style.opacity = '1';
+    } else {
+      toast.style.opacity = '0';
+    }
+  }
+
   function destroyOverlay() {
+    const toast = document.getElementById('tab-switcher-search-toast');
+    if (toast) {
+      toast.remove();
+    }
+
     if (overlay) {
       window.removeEventListener('keydown', onKeyDown, { capture: true });
       window.removeEventListener('keyup', onKeyUp, { capture: true });
@@ -210,22 +256,43 @@
     }
   }
 
-  function renderTabs(tabs) {
-    currentTabData = tabs;
-
-    // Start with the last tab selected
-    selectedIndex = currentTabData.length > 1 ? 1 : 0;
-
+  function renderOrUpdateTabs(tabs) {
     if (!overlay) createOverlay();
-
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!overlay) return; // safety
-    overlay.innerHTML = '';
 
-    currentTabData.forEach((tab, idx) => {
+    const filteredTabs = searchQuery
+      ? tabs.filter(
+          (t) =>
+            t.title.toLowerCase().includes(searchQuery) ||
+            t.url.toLowerCase().includes(searchQuery),
+        )
+      : tabs;
+
+    // If the selected index is now out of bounds, reset it
+    if (selectedIndex >= filteredTabs.length) {
+      selectedIndex = Math.max(0, filteredTabs.length - 1);
+    }
+
+    overlay.innerHTML = ''; // Clear existing tabs
+
+    if (filteredTabs.length === 0) {
+      const noResults = document.createElement('div');
+      noResults.textContent = 'No matching tabs found.';
+      noResults.style.color = '#888';
+      noResults.style.padding = '20px';
+      noResults.style.textAlign = 'center';
+      noResults.style.width = '100%';
+      overlay.appendChild(noResults);
+      return;
+    }
+
+    filteredTabs.forEach((tab, idx) => {
       const item = document.createElement('div');
-      item.className =
-        'tab-switcher-item' + (idx === selectedIndex ? ' selected' : '');
+      item.className = 'tab-switcher-item';
+      if (idx === selectedIndex) {
+        item.classList.add('selected');
+      }
       item.dataset.tabId = String(tab.id);
 
       if (tab.screenshot) {
@@ -237,21 +304,18 @@
       } else {
         const placeholder = document.createElement('div');
         placeholder.className = 'thumbnail';
-        placeholder.style.backgroundColor = '#f0f0f0';
+        placeholder.style.backgroundColor = '#f0f0f0'; // Light grey placeholder
         item.appendChild(placeholder);
       }
 
       const titleContainer = document.createElement('div');
       titleContainer.className = 'title-container';
 
-      // Favicon (small icon next to title)
       if (tab.favIconUrl) {
         const faviconImg = document.createElement('img');
         faviconImg.className = 'favicon';
         faviconImg.src = tab.favIconUrl;
-        faviconImg.width = 16;
-        faviconImg.height = 16;
-        faviconImg.alt = 'favicon';
+        faviconImg.alt = 'Favicon';
         titleContainer.appendChild(faviconImg);
       }
 
@@ -261,8 +325,10 @@
 
       item.appendChild(titleContainer);
 
-      overlay?.appendChild(item);
+      overlay.appendChild(item);
     });
+
+    updateSelection();
   }
 
   function updateSelection() {
