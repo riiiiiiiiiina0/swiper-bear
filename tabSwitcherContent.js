@@ -87,27 +87,27 @@
     style.id = 'tab-switcher-styles';
     style.textContent = `
       #tab-switcher-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 2147483647; /* Max z-index */
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 100% !important;
+        height: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        z-index: 2147483647 !important; /* Max z-index */
         flex-direction: row !important;
         height: auto !important;
-        max-width: 80vw;
-        overflow-x: auto;
-        gap: 12px;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 16px 20px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(10px);
-        transition: opacity 150ms ease;
+        max-width: 90vw !important;
+        overflow-x: auto !important;
+        gap: 12px !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        padding: 16px 20px !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(10px) !important;
+        transition: opacity 150ms ease !important;
       }
       .tab-switcher-item {
         display: flex;
@@ -277,8 +277,8 @@
       current.classList.add('selected');
       current.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest',
-        inline: 'nearest',
+        inline: 'center',
+        block: 'center',
       });
     }
   }
