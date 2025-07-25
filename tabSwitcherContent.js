@@ -88,11 +88,14 @@
     style.textContent = `
       #tab-switcher-overlay {
         position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         z-index: 2147483647; /* Max z-index */
-        display: flex !important;
         flex-direction: row !important;
         height: auto !important;
         max-width: 80vw;
@@ -113,6 +116,7 @@
         align-items: center;
         cursor: pointer;
         width: 180px;
+        min-width: 180px;
       }
       .tab-switcher-item .thumbnail {
         width: 100%;
