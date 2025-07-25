@@ -91,7 +91,7 @@
         top: 50% !important;
         left: 50% !important;
         transform: translate(-50%, -50%) !important;
-        width: 100% !important;
+        width: auto !important;
         height: 100% !important;
         display: flex !important;
         align-items: center !important;
@@ -155,12 +155,12 @@
       /* Dark mode overrides */
       @media (prefers-color-scheme: dark) {
         #tab-switcher-overlay {
-          background: rgba(40, 40, 40, 0.95);
-          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.75);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: rgba(40, 40, 40, 0.95) !important;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.75) !important;
+          border: 1px solid rgba(255, 255, 255, 0.15) !important;
         }
         .tab-switcher-item span {
-          color: #eee;
+          color: #eee !important;
         }
       }
     `;
