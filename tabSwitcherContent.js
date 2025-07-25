@@ -95,6 +95,8 @@
         display: flex !important;
         flex-direction: row !important;
         height: auto !important;
+        max-width: 80vw;
+        overflow-x: auto;
         gap: 12px;
         background: rgba(255, 255, 255, 0.95);
         padding: 16px 20px;
@@ -205,8 +207,7 @@
   }
 
   function renderTabs(tabs) {
-    const n = Math.floor(window.innerWidth / 200);
-    currentTabData = tabs.slice(0, n);
+    currentTabData = tabs;
 
     // Start with the last tab selected
     selectedIndex = currentTabData.length > 1 ? 1 : 0;
@@ -268,7 +269,14 @@
     if (!items.length) return;
     items.forEach((el) => el.classList.remove('selected'));
     const current = items[selectedIndex];
-    if (current) current.classList.add('selected');
+    if (current) {
+      current.classList.add('selected');
+      current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
   }
 
   function selectNextTab() {
