@@ -51,24 +51,34 @@ export function getTabDataList(activeTabId, callback) {
           .map((item) => [item.id, item]),
       );
 
-      const tabDataList = tabs
-        .map((tab) => {
-          const stored = storedTabs.get(tab.id);
-          return {
-            id: tab.id,
-            lastActive: stored ? stored.lastActive : 0,
-            title: tab.title,
-            url: tab.url,
-            favIconUrl: tab.favIconUrl,
-            screenshot: stored ? stored.screenshot : undefined,
-          };
-        })
-        // 5. Sort by lastActive in descending order (most recent first)
-        .sort((a, b) => {
-          if (a.id === activeTabId) return -1;
-          if (b.id === activeTabId) return 1;
-          return b.lastActive - a.lastActive;
-        });
+      const tabDataList = /** @type {TabData[]} */ (
+        tabs
+          // 3. Filter out tabs that don't have a URL or a valid ID
+          .filter(
+            (tab) =>
+              tab.url &&
+              tab.url.startsWith('http') &&
+              typeof tab.id === 'number',
+          )
+          // 4. Map the tabs to tab data objects
+          .map((tab) => {
+            const stored = storedTabs.get(tab.id);
+            return {
+              id: tab.id,
+              lastActive: stored ? stored.lastActive : 0,
+              title: tab.title,
+              url: tab.url,
+              favIconUrl: tab.favIconUrl,
+              screenshot: stored ? stored.screenshot : undefined,
+            };
+          })
+          // 5. Sort by lastActive in descending order (most recent first)
+          .sort((a, b) => {
+            if (a.id === activeTabId) return -1;
+            if (b.id === activeTabId) return 1;
+            return b.lastActive - a.lastActive;
+          })
+      );
       callback(tabDataList);
     });
   });
