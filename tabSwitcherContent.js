@@ -223,10 +223,18 @@
         'tab-switcher-item' + (idx === selectedIndex ? ' selected' : '');
       item.dataset.tabId = String(tab.id);
 
-      const img = document.createElement('img');
-      img.className = 'thumbnail';
-      img.src = tab.screenshot || tab.favIconUrl || '';
-      img.alt = tab.title || 'Tab thumbnail';
+      if (tab.screenshot) {
+        const img = document.createElement('img');
+        img.className = 'thumbnail';
+        img.src = tab.screenshot;
+        img.alt = tab.title || 'Tab thumbnail';
+        item.appendChild(img);
+      } else {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'thumbnail';
+        placeholder.style.backgroundColor = '#f0f0f0';
+        item.appendChild(placeholder);
+      }
 
       const titleContainer = document.createElement('div');
       titleContainer.className = 'title-container';
@@ -243,10 +251,9 @@
       }
 
       const title = document.createElement('span');
-      title.textContent = tab.title || 'Untitled tab';
+      title.textContent = tab.title || tab.url;
       titleContainer.appendChild(title);
 
-      item.appendChild(img);
       item.appendChild(titleContainer);
 
       overlay?.appendChild(item);
