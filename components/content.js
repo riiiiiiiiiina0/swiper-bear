@@ -16,7 +16,7 @@ export function injectTabSwitcher(tabId, url) {
     {
       target: { tabId },
       files: ['tabSwitcherContent.js'],
-      runAt: 'document_start',
+      injectImmediately: true
     },
     () => {
       if (chrome.runtime.lastError) {
