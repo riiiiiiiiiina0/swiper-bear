@@ -51,7 +51,18 @@
     if (response && response.type === 'tab_data') {
       const { tabData, shortcut } = response;
       if (Array.isArray(tabData) && tabData.length) {
-        renderTabs(tabData);
+        if (
+          document.readyState === 'complete' ||
+          document.readyState === 'interactive'
+        ) {
+          renderTabs(tabData);
+        } else {
+          document.addEventListener(
+            'DOMContentLoaded',
+            () => renderTabs(tabData),
+            { once: true },
+          );
+        }
       }
       if (shortcut) {
         const isWindows = navigator.userAgent.includes('Windows');
