@@ -159,6 +159,13 @@
         margin: 0;
         flex-shrink: 0;
       }
+      .favicon-placeholder {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #ccc;
+        flex-shrink: 0;
+      }
       .tab-switcher-item.selected .thumbnail {
         outline: 6px solid #1573ff;
         outline-offset: -3px;
@@ -255,15 +262,27 @@
       const titleContainer = document.createElement('div');
       titleContainer.className = 'title-container';
 
+      const createFaviconPlaceholder = () => {
+        const placeholder = document.createElement('div');
+        placeholder.className = 'favicon-placeholder';
+        return placeholder;
+      };
+
       // Favicon (small icon next to title)
       if (tab.favIconUrl) {
         const faviconImg = document.createElement('img');
         faviconImg.className = 'favicon';
         faviconImg.src = tab.favIconUrl;
-        faviconImg.width = 16;
-        faviconImg.height = 16;
         faviconImg.alt = 'favicon';
+
+        // If the image fails to load, replace it with a placeholder
+        faviconImg.onerror = () => {
+          faviconImg.replaceWith(createFaviconPlaceholder());
+        };
         titleContainer.appendChild(faviconImg);
+      } else {
+        // If there's no favicon URL, show the placeholder directly
+        titleContainer.appendChild(createFaviconPlaceholder());
       }
 
       const title = document.createElement('span');
