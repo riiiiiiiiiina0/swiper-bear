@@ -1,4 +1,4 @@
-# 🐾🐻‍❄️ Swiper Bear
+# 🐻‍❄️🐾 Swiper Bear
 
 Welcome to **Swiper Bear**—the fluffiest way to swipe through your tabs!
 Just like a bear foraging for snacks, Swiper Bear helps you quickly and smoothly switch between your browser tabs, all with the power of one paw (okay, your keyboard).
