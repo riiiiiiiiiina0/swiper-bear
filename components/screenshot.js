@@ -2,7 +2,7 @@ import { resizeImage } from './image.js';
 import { saveTabData } from './storage.js';
 
 const MAX_SCREENSHOT_RETRIES = 3;
-const SCREENSHOT_RETRY_DELAY_MS = 200;
+const SCREENSHOT_RETRY_DELAY_MS = 500;
 
 /**
  * Takes a screenshot of the specified tab and saves it to local storage
@@ -10,15 +10,16 @@ const SCREENSHOT_RETRY_DELAY_MS = 200;
  * The function captures the visible area, resizes it, and stores it along with tab metadata
  */
 export function takeScreenshot(tab, retryCount = 0) {
-  const id = tab.id;
-  if (!id) return;
-
-  // if page url not start with http:// or https://, return
+  // ignore invalid tabs
   if (
+    !tab ||
+    !tab.id ||
     !tab.url ||
     (!tab.url.startsWith('http://') && !tab.url.startsWith('https://'))
   )
     return;
+
+  const id = tab.id;
 
   /** @type {import('./storage').TabData} */
   const tabData = {

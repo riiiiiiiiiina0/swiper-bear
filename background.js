@@ -2,6 +2,11 @@ import { injectTabSwitcher } from './components/content.js';
 import { takeScreenshot } from './components/screenshot.js';
 import { getTabDataList } from './components/storage.js';
 
+// Clear any previously saved tab data when the extension is installed or updated
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.storage.local.clear();
+});
+
 /**
  * Takes a screenshot of the newly activated tab
  */
@@ -61,7 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         sendResponse({
           type: 'tab_data',
-          tabData: tabDataList.slice(0, 8), // provide 8 tabs at most
+          tabData: tabDataList, // provide up to 10 tabs
           shortcut: shortcut,
         });
       });

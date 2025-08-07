@@ -14,11 +14,19 @@
  */
 export function saveTabData(id, tabData) {
   chrome.storage.local.set({ [`tab-${id}`]: tabData }, () => {
-    // console.log(`Screenshot saved for tab ${id}`);
-    // console.log(
-    //   '%c ',
-    //   `font-size:300px; background:url(${resizedDataUrl}) no-repeat; background-size: contain;`,
-    // );
+    // After saving, keep only the 10 most-recent entries to avoid bloating storage.
+    chrome.storage.local.get(null, (items) => {
+      /** @type {TabData[]} */
+      const allTabs = Object.values(items).filter(
+        (item) => item && typeof item.id === 'number',
+      );
+      // Sort by lastActive (newest first)
+      allTabs.sort((a, b) => b.lastActive - a.lastActive);
+      const keysToRemove = allTabs.slice(10).map((t) => `tab-${t.id}`);
+      if (keysToRemove.length) {
+        chrome.storage.local.remove(keysToRemove);
+      }
+    });
   });
 }
 
@@ -79,7 +87,7 @@ export function getTabDataList(activeTabId, callback) {
             return b.lastActive - a.lastActive;
           })
       );
-      callback(tabDataList);
+      callback(tabDataList.slice(0, 10));
     });
   });
 }

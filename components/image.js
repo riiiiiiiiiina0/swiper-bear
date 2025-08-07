@@ -18,7 +18,7 @@ export function resizeImage(dataUrl, width, callback) {
       const ctx = offscreen.getContext('2d');
       ctx?.drawImage(imageBitmap, 0, 0, canvasWidth, canvasHeight);
 
-      return offscreen.convertToBlob({ type: 'image/png' });
+      return offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.7 });
     })
     .then((resizedBlob) => {
       const reader = new FileReader();
