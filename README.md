@@ -1,61 +1,41 @@
-# 🐻‍❄️🐾 Swiper Bear
+## 🐻 Swiper Bear — tab switching, the cute way
 
-Welcome to **Swiper Bear**—the fluffiest way to swipe through your tabs!
-Just like a bear foraging for snacks, Swiper Bear helps you quickly and smoothly switch between your browser tabs, all with the power of one paw (okay, your keyboard).
+Switch tabs with a single keyboard shortcut and a delightful preview—just like Cmd+Tab on macOS, but for your browser.
 
 ![](./docs/poster.jpeg)
 
 <a href="https://buymeacoffee.com/riiiiiiiiiina" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
----
+- **One single purpose**: Quickly switch tabs with keyboard + visual preview
+- **Default shortcut**: `Ctrl+Q` (you can change it in Chrome → Extensions → Keyboard shortcuts)
+- **How it works**: Press the shortcut to open the overlay, keep pressing to cycle, release to switch. Arrow keys and Enter also work.
 
-## 🌟 Features
+### Install
 
-- **Bear-fast tab switching** — Forget hunting for lost tabs! Cycle through your most recently used tabs in a snap.
-- **Thumbnail previews** — See all your open tabs with adorable little previews (like a bear peeking into each cave).
-- **One-paw control** — Navigate with easy keyboard shortcuts, just like a bear swiping through a picnic basket.
-- **Productivity boost** — Never lose track of what you’re working on, even if you’re as curious as a cub.
+- Chrome Web Store: [`Swiper Bear`](https://chromewebstore.google.com/detail/swiper-bear/jdcoileonkeommemccamplepkjpffpio)
 
----
+### Features
 
-## 🧸 How to Use
+- **Cmd+Tab-style flow**: Hold your shortcut, see recent tabs, release to jump
+- **Live previews**: Tiny screenshots and favicons for quick recognition
+- **Recency-aware**: Sorts by most recently active tabs
+- **Dark mode friendly**: Adapts to your theme
 
-1. **Install Swiper Bear** from [Chrome Web Store](https://chromewebstore.google.com/detail/tab-switcher/jdcoileonkeommemccamplepkjpffpio?authuser=0&hl=en)
-   Add the extension to your browser and let Swiper Bear wake up from hibernation.
-2. **Open some tabs**
-   Don’t be shy! Swiper Bear loves lots of tabs.
-3. **Hit your shortcut**
-   Press <kbd>Ctrl</kbd> + <kbd>Q</kbd> (or set your own!) to summon Swiper Bear’s tab switcher overlay.
-4. **Swipe away**
-   Use the arrow keys to move between previews, then hit <kbd>Enter</kbd> to jump to your chosen tab. Roar of approval optional.
+### Tips
 
----
+- Change the shortcut: Chrome → Manage Extensions → Keyboard shortcuts → Swiper Bear
+- Arrow Left/Right to move selection, Enter to confirm, Esc to cancel
 
-## 🐻 FAQ
+### Permissions
 
-**Q: Why “Swiper Bear”?**
-A: Because it’s way cuter than “Tab Switcher” and way more powerful than your average woodland creature.
+Used only to provide previews and switching:
 
-**Q: Does Swiper Bear eat my cookies?**
-A: Only the digital kind, and only to remember your tab order! Your real cookies are safe. (But if you have honey, you might want to hide it.)
+- `tabs`, `activeTab`, `scripting`, `storage`
 
-**Q: Is it fast?**
-A: Faster than a bear chasing picnic baskets.
+### Privacy
 
----
+Screenshots are stored locally and trimmed to the most recent 10 tabs. No data leaves your browser.
 
-## 🎨 Customization
+### Support
 
-- Choose your own keyboard shortcut in browser settings.
-- Works with as many tabs as you can handle (Swiper Bear never gets full).
-
----
-
-## 🐾 Why Swiper Bear?
-
-Because every tab deserves a bear hug, and you deserve the _beary_ best productivity tools.
-Try it today—your tabs (and your inner bear) will thank you!
-
----
-
-**Install now and start swiping like a bear on a mission!**
+If something feels grizzly, please open an issue or leave a review on the store page. 🐾
