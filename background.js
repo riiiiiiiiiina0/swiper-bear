@@ -25,21 +25,14 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// Handle keyboard shortcut defined in manifest to toggle the tab switcher overlay.
-chrome.commands.onCommand.addListener((command) => {
-  if (command !== 'toggle_tab_switcher') return;
+// Handle keyboard shortcut to toggle the tab switcher overlay.
+chrome.action.onClicked.addListener((activeTab) => {
+  if (typeof activeTab.id !== 'number') return;
 
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    if (!tabs.length) return;
-    const activeTab = tabs[0];
-
-    if (typeof activeTab.id !== 'number') return;
-
-    // Inject (or reinject) the content script and, if the overlay is already
-    // open, move selection to the next tab.
-    injectTabSwitcher(activeTab.id, activeTab.url);
-    chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
-  });
+  // Inject (or reinject) the content script and, if the overlay is already
+  // open, move selection to the next tab.
+  injectTabSwitcher(activeTab.id, activeTab.url);
+  chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -59,7 +52,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Get the actual shortcut keys for the command and include in the response
       chrome.commands.getAll((commands) => {
         const toggleCmd = commands.find(
-          (cmd) => cmd.name === 'toggle_tab_switcher',
+          (cmd) => cmd.name === '_execute_action',
         );
         const shortcut =
           toggleCmd && toggleCmd.shortcut ? toggleCmd.shortcut : undefined;
