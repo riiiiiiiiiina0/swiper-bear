@@ -29,7 +29,8 @@
   "commands": {
     "_execute_action": {
       "suggested_key": {
-        "default": "Ctrl+E"
+        "default": "Ctrl+Q",
+        "mac": "MacCtrl+Q"
       }
     }
   }
