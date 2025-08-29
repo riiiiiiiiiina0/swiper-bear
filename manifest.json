@@ -11,16 +11,13 @@
   },
   "action": {
     "default_icon": "icons/icon-48x48.png",
-    "default_title": "Tab Switcher"
+    "default_title": "Tab Switcher",
+    "default_popup": "popup.html"
   },
   "permissions": [
     "activeTab",
     "tabs",
-    "storage",
-    "scripting"
-  ],
-  "host_permissions": [
-    "<all_urls>"
+    "storage"
   ],
   "background": {
     "service_worker": "background.js",

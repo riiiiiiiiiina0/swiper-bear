@@ -1,4 +1,3 @@
-import { injectTabSwitcher } from './components/content.js';
 import { takeScreenshot } from './components/screenshot.js';
 import { getTabDataList } from './components/storage.js';
 
@@ -25,19 +24,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// Handle keyboard shortcut to toggle the tab switcher overlay.
-chrome.action.onClicked.addListener(() => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeTab = tabs[0];
-    if (activeTab && typeof activeTab.id === 'number') {
-      // Inject (or reinject) the content script and, if the overlay is already
-      // open, move selection to the next tab.
-      injectTabSwitcher(activeTab.id, activeTab.url);
-      chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
-    }
-  });
-});
-
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Activate a specific tab
   if (
@@ -52,19 +38,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   else if (message && message.type === 'request_tab_data') {
     // Get the recent tab data
     getTabDataList(sender?.tab?.id || 0, (tabDataList) => {
-      // Get the actual shortcut keys for the command and include in the response
-      chrome.commands.getAll((commands) => {
-        const toggleCmd = commands.find(
-          (cmd) => cmd.name === '_execute_action',
-        );
-        const shortcut =
-          toggleCmd && toggleCmd.shortcut ? toggleCmd.shortcut : undefined;
-
-        sendResponse({
-          type: 'tab_data',
-          tabData: tabDataList, // provide up to 10 tabs
-          shortcut: shortcut,
-        });
+      sendResponse({
+        type: 'tab_data',
+        tabData: tabDataList, // provide up to 10 tabs
       });
     });
     return true; // Keep the message channel open for async sendResponse

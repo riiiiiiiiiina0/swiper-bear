@@ -1,0 +1,84 @@
+#tab-switcher-overlay {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: auto !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  z-index: 2147483647 !important; /* Max z-index */
+  flex-direction: row !important;
+  height: auto !important;
+  max-width: 90vw !important;
+  overflow-x: auto !important;
+  gap: 12px !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: opacity 150ms ease !important;
+}
+.tab-switcher-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  width: 180px;
+  min-width: 180px;
+}
+.tab-switcher-item .thumbnail {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.tab-switcher-item span {
+  font-size: 13px;
+  color: #222;
+  font-family: "Arial Rounded MT", "Arial Rounded MT Bold", Arial, sans-serif;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+/* New: title container with favicon */
+.tab-switcher-item .title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.tab-switcher-item .favicon {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.favicon-placeholder {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ccc;
+  flex-shrink: 0;
+}
+.tab-switcher-item.selected .thumbnail {
+  outline: 6px solid #1573ff;
+  outline-offset: -3px;
+}
+/* Dark mode overrides */
+@media (prefers-color-scheme: dark) {
+  #tab-switcher-overlay {
+    background: rgba(40, 40, 40, 0.95) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.75) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+  .tab-switcher-item span {
+    color: #eee !important;
+  }
+}
