@@ -1,4 +1,3 @@
-import { injectTabSwitcher } from './components/content.js';
 import { takeScreenshot } from './components/screenshot.js';
 import { getTabDataList } from './components/storage.js';
 
@@ -25,17 +24,34 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   }
 });
 
-// Handle keyboard shortcut to toggle the tab switcher overlay.
-chrome.action.onClicked.addListener(() => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeTab = tabs[0];
-    if (activeTab && typeof activeTab.id === 'number') {
-      // Inject (or reinject) the content script and, if the overlay is already
-      // open, move selection to the next tab.
-      injectTabSwitcher(activeTab.id, activeTab.url);
-      chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
+// Track popup connection to know if popup is open
+/** @type {chrome.runtime.Port | null} */
+let popupPort = null;
+
+chrome.runtime.onConnect.addListener((port) => {
+  if (port.name === 'popup') {
+    popupPort = port;
+    port.onDisconnect.addListener(() => {
+      popupPort = null;
+    });
+  }
+});
+
+// Command handler for opening popup and advancing selection when already open
+chrome.commands.onCommand.addListener((command) => {
+  if (command === 'open_switcher') {
+    if (popupPort) {
+      try {
+        popupPort.postMessage({ type: 'popup_select_next' });
+      } catch (e) {
+        // If posting failed, clear the port and try opening popup
+        popupPort = null;
+        chrome.action.openPopup(() => void chrome.runtime.lastError);
+      }
+    } else {
+      chrome.action.openPopup(() => void chrome.runtime.lastError);
     }
-  });
+  }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -51,12 +67,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Content script requests recent tab data – gather and reply asynchronously
   else if (message && message.type === 'request_tab_data') {
     // Get the recent tab data
-    getTabDataList(sender?.tab?.id || 0, (tabDataList) => {
+    getTabDataList((tabDataList) => {
       // Get the actual shortcut keys for the command and include in the response
       chrome.commands.getAll((commands) => {
-        const toggleCmd = commands.find(
-          (cmd) => cmd.name === '_execute_action',
-        );
+        const toggleCmd = commands.find((cmd) => cmd.name === 'open_switcher');
         const shortcut =
           toggleCmd && toggleCmd.shortcut ? toggleCmd.shortcut : undefined;
 

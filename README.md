@@ -7,7 +7,7 @@ Switch tabs with a single keyboard shortcut and a delightful preview—just like
 <a href="https://buymeacoffee.com/riiiiiiiiiina" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 - **One single purpose**: Quickly switch tabs with keyboard + visual preview
-- **Default shortcut**: `Ctrl+Q` (you can change it in Chrome → Extensions → Keyboard shortcuts)
+- **Default shortcut**: `Ctrl+Q` (command `open_switcher`, configurable in Chrome → Extensions → Keyboard shortcuts)
 - **How it works**: Press the shortcut to open the overlay, keep pressing to cycle, release to switch. Arrow keys and Enter also work.
 
 ### Install

@@ -11,7 +11,8 @@
   },
   "action": {
     "default_icon": "icons/icon-48x48.png",
-    "default_title": "Tab Switcher"
+    "default_title": "Tab Switcher",
+    "default_popup": "pages/popup.html"
   },
   "permissions": [
     "activeTab",
@@ -23,15 +24,16 @@
     "<all_urls>"
   ],
   "background": {
-    "service_worker": "background.js",
+    "service_worker": "src/background.js",
     "type": "module"
   },
   "commands": {
-    "_execute_action": {
+    "open_switcher": {
       "suggested_key": {
         "default": "Ctrl+Q",
         "mac": "MacCtrl+Q"
-      }
+      },
+      "description": "Open switcher popup / Next"
     }
   }
 }

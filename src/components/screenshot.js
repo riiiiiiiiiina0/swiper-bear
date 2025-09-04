@@ -21,7 +21,7 @@ export function takeScreenshot(tab, retryCount = 0) {
 
   const id = tab.id;
 
-  /** @type {import('./storage').TabData} */
+  /** @type {import('./storage.js').TabData} */
   const tabData = {
     id,
     lastActive: new Date().getTime(),
