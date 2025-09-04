@@ -11,7 +11,8 @@
   },
   "action": {
     "default_icon": "icons/icon-48x48.png",
-    "default_title": "Tab Switcher"
+    "default_title": "Tab Switcher",
+    "default_popup": "popup.html"
   },
   "permissions": [
     "activeTab",
@@ -25,13 +26,5 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
-  },
-  "commands": {
-    "_execute_action": {
-      "suggested_key": {
-        "default": "Ctrl+Q",
-        "mac": "MacCtrl+Q"
-      }
-    }
   }
 }

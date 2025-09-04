@@ -1,0 +1,78 @@
+body {
+  margin: 0;
+  font-family: "Arial Rounded MT", "Arial Rounded MT Bold", Arial, sans-serif;
+}
+
+#tab-switcher-container {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 16px 20px;
+  max-width: 90vw;
+  overflow-x: auto;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.tab-switcher-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  width: 180px;
+  min-width: 180px;
+}
+
+.tab-switcher-item .thumbnail {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.tab-switcher-item span {
+  font-size: 13px;
+  color: #222;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.tab-switcher-item .title-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.tab-switcher-item .favicon {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.favicon-placeholder {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #ccc;
+  flex-shrink: 0;
+}
+
+.tab-switcher-item.selected .thumbnail {
+  outline: 6px solid #1573ff;
+  outline-offset: -3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  #tab-switcher-container {
+    background: rgba(40, 40, 40, 0.95);
+  }
+  .tab-switcher-item span {
+    color: #eee !important;
+  }
+}

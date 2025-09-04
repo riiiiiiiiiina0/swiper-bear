@@ -1,4 +1,3 @@
-import { injectTabSwitcher } from './components/content.js';
 import { takeScreenshot } from './components/screenshot.js';
 import { getTabDataList } from './components/storage.js';
 
@@ -23,19 +22,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === 'complete' && tab.active) {
     takeScreenshot(tab);
   }
-});
-
-// Handle keyboard shortcut to toggle the tab switcher overlay.
-chrome.action.onClicked.addListener(() => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const activeTab = tabs[0];
-    if (activeTab && typeof activeTab.id === 'number') {
-      // Inject (or reinject) the content script and, if the overlay is already
-      // open, move selection to the next tab.
-      injectTabSwitcher(activeTab.id, activeTab.url);
-      chrome.tabs.sendMessage(activeTab.id, { type: 'advance_selection' });
-    }
-  });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
