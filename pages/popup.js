@@ -9,16 +9,13 @@ let closeHotkey = '';
  */
 function parseHotkey(shortcut) {
   if (!shortcut) return '';
-  const parts = shortcut.split('+');
+  const parts = shortcut.includes('+')
+    ? shortcut.split('+')
+    : shortcut.split('');
   const lastPart = parts[parts.length - 1];
   // The key is the last part of the shortcut. It's usually a single character.
   if (lastPart && lastPart.length === 1) {
     return lastPart.toLowerCase();
-  }
-  // Handle special keys that are longer than one character, e.g., 'Space'
-  const specialKeys = ['space', 'tab', 'enter', 'escape', 'backspace', 'delete', 'home', 'end', 'pageup', 'pagedown', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
-  if (lastPart && specialKeys.includes(lastPart.toLowerCase())) {
-	return lastPart.toLowerCase();
   }
   return '';
 }
@@ -201,6 +198,7 @@ window.addEventListener(
 );
 
 window.addEventListener('keyup', (e) => {
+  console.log('keyup:', e.key, closeHotkey);
   if (closeHotkey && e.key.toLowerCase() === closeHotkey) {
     e.preventDefault();
     commitSelection();
@@ -232,6 +230,7 @@ chrome.runtime.sendMessage({ type: 'request_tab_data' }, (response) => {
     const { tabData, shortcut } = response;
     if (shortcut) {
       closeHotkey = parseHotkey(shortcut);
+      console.log('closeHotkey:', closeHotkey, shortcut);
     }
     if (Array.isArray(tabData) && tabData.length) {
       renderTabs(tabData);
