@@ -68,6 +68,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   else if (message && message.type === 'request_tab_data') {
     // Get the recent tab data
     getTabDataList((tabDataList) => {
+      // Find the open_switcher command to get its shortcut
       // Get the actual shortcut keys for the command and include in the response
       chrome.commands.getAll((commands) => {
         const toggleCmd = commands.find((cmd) => cmd.name === 'open_switcher');
