@@ -1,6 +1,27 @@
 /** @type {Array<any>} */
 let currentTabData = [];
 let selectedIndex = 0;
+let closeHotkey = '';
+
+/**
+ * @param {string | undefined} shortcut
+ * @returns {string}
+ */
+function parseHotkey(shortcut) {
+  if (!shortcut) return '';
+  const parts = shortcut.split('+');
+  const lastPart = parts[parts.length - 1];
+  // The key is the last part of the shortcut. It's usually a single character.
+  if (lastPart && lastPart.length === 1) {
+    return lastPart.toLowerCase();
+  }
+  // Handle special keys that are longer than one character, e.g., 'Space'
+  const specialKeys = ['space', 'tab', 'enter', 'escape', 'backspace', 'delete', 'home', 'end', 'pageup', 'pagedown', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'];
+  if (lastPart && specialKeys.includes(lastPart.toLowerCase())) {
+	return lastPart.toLowerCase();
+  }
+  return '';
+}
 
 // Connect to background so it knows popup is open and can send messages
 try {
@@ -179,6 +200,13 @@ window.addEventListener(
   { capture: true },
 );
 
+window.addEventListener('keyup', (e) => {
+  if (closeHotkey && e.key.toLowerCase() === closeHotkey) {
+    e.preventDefault();
+    commitSelection();
+  }
+});
+
 // Receive control messages from background (for command presses)
 chrome.runtime.onMessage.addListener((message) => {
   if (!message) return;
@@ -201,7 +229,10 @@ try {
 // Request initial tab data
 chrome.runtime.sendMessage({ type: 'request_tab_data' }, (response) => {
   if (response && response.type === 'tab_data') {
-    const { tabData } = response;
+    const { tabData, shortcut } = response;
+    if (shortcut) {
+      closeHotkey = parseHotkey(shortcut);
+    }
     if (Array.isArray(tabData) && tabData.length) {
       renderTabs(tabData);
     } else {
@@ -229,7 +260,11 @@ function showActivationHint() {
   const badge = document.createElement('div');
   badge.className =
     'activation-hint absolute -top-1 -right-2 px-2 py-1 rounded text-[11px] font-medium bg-yellow-400 text-black shadow animate-bounce opacity-0 transition-opacity duration-300';
-  badge.textContent = 'Enter to activate';
+  if (closeHotkey) {
+    badge.textContent = `Enter or ${closeHotkey.toUpperCase()} to select`;
+  } else {
+    badge.textContent = 'Enter to activate';
+  }
   wrapper.appendChild(badge);
 
   setTimeout(() => {
