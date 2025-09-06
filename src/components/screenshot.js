@@ -14,8 +14,7 @@ export function takeScreenshot(tab, retryCount = 0) {
   if (
     !tab ||
     !tab.id ||
-    !tab.url ||
-    (!tab.url.startsWith('http://') && !tab.url.startsWith('https://'))
+    !tab.url
   )
     return;
 
