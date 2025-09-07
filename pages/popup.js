@@ -3,6 +3,22 @@ let currentTabData = [];
 let selectedIndex = 0;
 let closeHotkey = '';
 
+/** @type {boolean} */
+let ignoreNextCloseHotkeyOnWindows = false;
+
+/**
+ * @returns {boolean}
+ */
+function isWindows() {
+  try {
+    const platform = navigator.platform || '';
+    const ua = navigator.userAgent || '';
+    return /win/i.test(platform) || /windows/i.test(ua);
+  } catch (_) {
+    return false;
+  }
+}
+
 /**
  * @param {string | undefined} shortcut
  * @returns {string}
@@ -200,6 +216,10 @@ window.addEventListener(
 window.addEventListener('keyup', (e) => {
   console.log('keyup:', e.key, closeHotkey);
   if (closeHotkey && e.key.toLowerCase() === closeHotkey) {
+    if (ignoreNextCloseHotkeyOnWindows) {
+      ignoreNextCloseHotkeyOnWindows = false;
+      return;
+    }
     e.preventDefault();
     commitSelection();
   }
@@ -231,6 +251,9 @@ chrome.runtime.sendMessage({ type: 'request_tab_data' }, (response) => {
     if (shortcut) {
       closeHotkey = parseHotkey(shortcut);
       console.log('closeHotkey:', closeHotkey, shortcut);
+      if (closeHotkey && isWindows()) {
+        ignoreNextCloseHotkeyOnWindows = true;
+      }
     }
     if (Array.isArray(tabData) && tabData.length) {
       renderTabs(tabData);
