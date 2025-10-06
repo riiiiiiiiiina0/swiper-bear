@@ -28,6 +28,9 @@ export function takeScreenshot(tab, retryCount = 0) {
     favIconUrl: tab.favIconUrl,
   };
 
+  // Save metadata first, so we at least have a timestamp
+  saveTabData(id, tabData);
+
   chrome.tabs.captureVisibleTab(
     tab.windowId,
     { format: 'jpeg', quality: 80 },
@@ -45,9 +48,15 @@ export function takeScreenshot(tab, retryCount = 0) {
           );
           return; // Exit early to avoid processing failure further
         }
-        console.error(errMsg);
+        // Don't log "no contents to capture" errors for chrome:// pages
+        if (!errMsg.includes('contents to capture')) {
+          console.error(errMsg);
+        }
         return;
       }
+
+      if (!dataUrl) return;
+
       resizeImage(dataUrl, 300, (resizedDataUrl) => {
         tabData.screenshot = resizedDataUrl;
         saveTabData(id, tabData);
