@@ -1,4 +1,4 @@
-## Swiper Bear — tab switching, the cute way 🐻
+## Tab Switcher Bear — tab switching, the cute way 🐻
 
 Switch tabs with one shortcut and a cozy preview—just like Cmd+Tab on macOS, but for your browser.
 
@@ -23,7 +23,7 @@ Extras:
 
 ### Customize the shortcut
 
-Chrome → Manage Extensions → Keyboard shortcuts → Swiper Bear.
+Chrome → Manage Extensions → Keyboard shortcuts → Tab Switcher Bear.
 
 ### Permissions (why we need them)
 
@@ -37,6 +37,6 @@ Your data stays with you. Screenshots and tab info are stored locally and automa
 
 ### Link
 
-Get it on the Chrome Web Store: [`Swiper Bear`](https://chromewebstore.google.com/detail/swiper-bear/jdcoileonkeommemccamplepkjpffpio)
+Get it on the Chrome Web Store: [`Tab Switcher Bear`](https://chromewebstore.google.com/detail/swiper-bear/jdcoileonkeommemccamplepkjpffpio)
 
 Have a beary nice tab trip! 🐾
