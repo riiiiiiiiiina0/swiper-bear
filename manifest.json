@@ -30,10 +30,24 @@
   "commands": {
     "open_switcher": {
       "suggested_key": {
-        "default": "Ctrl+Q",
-        "mac": "MacCtrl+Q"
+        "default": "Alt+Q",
+        "mac": "Alt+Q"
       },
       "description": "Open switcher popup / Next"
+    },
+    "switch-to-left-tab": {
+      "suggested_key": {
+        "default": "Alt+Left",
+        "mac": "Alt+Left"
+      },
+      "description": "Switch to the tab to the left"
+    },
+    "switch-to-right-tab": {
+      "suggested_key": {
+        "default": "Alt+Right",
+        "mac": "Alt+Right"
+      },
+      "description": "Switch to the tab to the right"
     }
   }
 }
