@@ -51,6 +51,20 @@ chrome.commands.onCommand.addListener((command) => {
     } else {
       chrome.action.openPopup(() => void chrome.runtime.lastError);
     }
+  } else if (command === 'switch-to-left-tab' || command === 'switch-to-right-tab') {
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      chrome.tabs.query({ active: true, currentWindow: true }, (activeTabs) => {
+        const activeTab = activeTabs[0];
+        const activeIndex = tabs.findIndex(tab => tab.id === activeTab.id);
+        let newIndex;
+        if (command === 'switch-to-left-tab') {
+          newIndex = (activeIndex - 1 + tabs.length) % tabs.length;
+        } else {
+          newIndex = (activeIndex + 1) % tabs.length;
+        }
+        chrome.tabs.update(tabs[newIndex].id, { active: true });
+      });
+    });
   }
 });
 
