@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Switcher Bear",
-  "version": "1.33",
+  "version": "1.34",
   "description": "Switch tabs with a cute preview using one shortcut—like Cmd+Tab for your browser.",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA24qGNQGwhxCSdvGxmWpYtKY02Pv66gDROc5DnWBIb7u6LRzX7b/PIfrrgE1FvwGwaCNTbFdrAdP4A3RBoSyHQbqs/Io8KLyvig8a+tCZm9u1fQxk3YECyXHXIq+ZE6A9BC8u7W8RdTZIp96BR9PqxKVlKxXWbUlBG4Z0/yd+jsdWfAoWlyk7dK0tb/WJBEwKTvmXvszYJ3+NJeIyR+++fkS6S7xBTY6+8UAMya5hNajUv2kwqFKbxwB0hpPVhnD6mNgwSZZUI2FkKfsC9Eepok82BWTZzRiEPOWCsmdCLrHeddLoK0P4T/phkNK8pPBwPqIoyzOW3wI/LWMWbM+TBwIDAQAB",
   "icons": {
