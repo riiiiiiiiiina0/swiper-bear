@@ -1,42 +1,12 @@
-## Tab Switcher Bear — tab switching, the cute way 🐻
+🐻‍❄️ Tab Switcher Bear
 
-Switch tabs with one shortcut and a cozy preview—just like Cmd+Tab on macOS, but for your browser.
+Tired of getting lost in a sea of tabs? Tab Switcher Bear is here to help you navigate your browser like a pro!
 
-### What it does
+✨ Features:
 
-- **Quick-switch overlay**: Press your shortcut to open a sleek overlay of your recent tabs
-- **Preview thumbnails**: See mini screenshots and favicons to pick the right tab instantly
-- **Cmd+Tab-style flow**: Hold the shortcut to cycle, release to switch
-- **Recency-first**: Your most recently active tabs appear first
-- **Dark-mode friendly**: Looks great in light or dark
+🚀 Instant Tab Switching: Use a simple shortcut (Alt+Q) to open a beautiful, visual tab switcher.
+🖼️ Tab Previews: See a screenshot of each tab so you always know where you're going.
+↔️ Quick Navigation: Instantly jump to the tab on your left or right with Alt+Left/Right.
+🧸 Cute & Simple: A delightful and easy-to-use interface that makes tab management a breeze.
 
-### How to use
-
-1. Install the extension
-2. Press the shortcut (default `Ctrl+Q`)
-3. Keep pressing to cycle through tabs, release to switch
-
-Extras:
-
-- Use Arrow Left/Right to move selection
-- Press Enter to confirm, Esc to cancel
-
-### Customize the shortcut
-
-Chrome → Manage Extensions → Keyboard shortcuts → Tab Switcher Bear.
-
-### Permissions (why we need them)
-
-- `tabs`, `activeTab`: Read tab info and switch tabs when you choose
-- `scripting`: Inject the lightweight overlay when you trigger it
-- `storage`: Keep small, local previews and recency data (limited to 10 tabs)
-
-### Privacy
-
-Your data stays with you. Screenshots and tab info are stored locally and automatically pruned. Nothing is sent anywhere.
-
-### Link
-
-Get it on the Chrome Web Store: [`Tab Switcher Bear`](https://chromewebstore.google.com/detail/swiper-bear/jdcoileonkeommemccamplepkjpffpio)
-
-Have a beary nice tab trip! 🐾
+Say goodbye to tab chaos and hello to seamless browsing with your new furry friend!
